@@ -507,38 +507,37 @@ static int aw87xxx_profile_switch_put(struct snd_kcontrol *kcontrol,
 }
 
 static int aw87xxx_profile_switch_get(struct snd_kcontrol *kcontrol,
-			struct snd_ctl_elem_value *ucontrol)
+                                      struct snd_ctl_elem_value *ucontrol)
 {
-	int index = 0;
-	char *profile;
-	struct aw87xxx *aw87xxx = (struct aw87xxx *)kcontrol->private_value;
+    int index = 0;
+    char *profile;
+    struct aw87xxx *aw87xxx = (struct aw87xxx *)kcontrol->private_value;
 
-	if (aw87xxx == NULL) {
-		AW_LOGE("get struct aw87xxx failed");
-		return -EINVAL;
-	}
+    if (aw87xxx == NULL) {
+        AW_LOGE("get struct aw87xxx failed");
+        return -EINVAL;
+    }
 
-	if (!aw87xxx->profile) {
-		AW_DEV_LOGE(aw87xxx->dev, "profile not init");
-		return -EINVAL;
-	}
+    if (!aw87xxx->current_profile) {
+        AW_DEV_LOGE(aw87xxx->dev, "profile not init");
+        return -EINVAL;
+    }
 
-	profile = aw87xxx->profile;
-	AW_DEV_LOGI(aw87xxx->dev, "current profile:[%s]",
-		aw87xxx->profile);
+    profile = aw87xxx->current_profile;
+    AW_DEV_LOGI(aw87xxx->dev, "current profile:[%s]", profile);
 
+    index = aw87xxx_acf_get_prof_index_form_name(aw87xxx->dev,
+                                                 &aw87xxx->acf_info, profile);
+    if (index < 0) {
+        AW_DEV_LOGE(aw87xxx->dev, "get profile index failed");
+        return index;
+    }
 
-	index = aw87xxx_acf_get_prof_index_form_name(aw87xxx->dev,
-		&aw87xxx->acf_info, aw87xxx->profile);
-	if (index < 0) {
-		AW_DEV_LOGE(aw87xxx->dev, "get profile index failed");
-		return index;
-	}
+    ucontrol->value.integer.value[0] = index;
 
-	ucontrol->value.integer.value[0] = index;
-
-	return 0;
+    return 0;
 }
+
 
 /*
 static int aw87xxx_vmax_get_info(struct snd_kcontrol *kcontrol,
